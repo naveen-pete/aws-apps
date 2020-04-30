@@ -47,12 +47,14 @@ export class AuthService {
         if (err) {
           this.authDidFail.next(true);
           this.authIsLoading.next(false);
+          console.log('Register user failed. Error:', err);
           return;
         }
 
         this.authDidFail.next(false);
         this.authIsLoading.next(false);
         this.registeredUser = result.user;
+        console.log('Register user successful.');
       }
     );
   }
@@ -69,11 +71,13 @@ export class AuthService {
       if (err) {
         this.authDidFail.next(true);
         this.authIsLoading.next(false);
+        console.log('Confirm user registration failed. Error:', err);
         return;
       }
 
       this.authDidFail.next(false);
       this.authIsLoading.next(false);
+      console.log('Confirm user registration successful.');
       this.router.navigate(['/']);
     });
   }
@@ -96,12 +100,14 @@ export class AuthService {
         this.authStatusChanged.next(true);
         this.authDidFail.next(false);
         this.authIsLoading.next(false);
-        console.log('Signin Result:', result);
+
+        console.log('User login successful.');
+        this.router.navigate(['/compare']);
       },
       onFailure: (err) => {
         this.authDidFail.next(true);
         this.authIsLoading.next(false);
-        console.log('Signin Error:', err);
+        console.log('User login failed. Error:', err);
       }
     });
 
@@ -109,11 +115,12 @@ export class AuthService {
     return;
   }
 
-  getAuthenticatedUser() {
-    return null;
+  getAuthenticatedUser(): CognitoUser {
+    return userPool.getCurrentUser();
   }
 
   logout() {
+    this.getAuthenticatedUser().signOut();
     this.authStatusChanged.next(false);
   }
 
@@ -123,7 +130,17 @@ export class AuthService {
       if (!user) {
         observer.next(false);
       } else {
-        observer.next(false);
+        user.getSession((err, session) => {
+          if (err) {
+            observer.next(false);
+          } else {
+            if (session.isValid()) {
+              observer.next(true);
+            } else {
+              observer.next(false);
+            }
+          }
+        });
       }
       observer.complete();
     });

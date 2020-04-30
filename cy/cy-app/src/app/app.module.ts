@@ -12,6 +12,7 @@ import { AuthService } from './user/auth.service';
 import { CompareService } from './compare/compare.service';
 import { CompareInputComponent } from './compare/compare-input/compare-input.component';
 import { CompareResultsComponent } from './compare/compare-results/compare-results.component';
+import { SpinnerComponent } from './util/spinner/spinner.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { CompareResultsComponent } from './compare/compare-results/compare-resul
     SigninComponent,
     CompareComponent,
     CompareInputComponent,
-    CompareResultsComponent
+    CompareResultsComponent,
+    SpinnerComponent
   ],
   imports: [
     BrowserModule,

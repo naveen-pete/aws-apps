@@ -2,9 +2,11 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
 import { BehaviorSubject, Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
+import { CognitoUserSession } from 'amazon-cognito-identity-js';
 
 import { CompareData } from './compare-data.model';
 import { AuthService } from '../user/auth.service';
+import { environment } from "../../environments/environment";
 
 @Injectable()
 export class CompareService {
@@ -23,21 +25,31 @@ export class CompareService {
     this.dataIsLoading.next(true);
     this.dataEdited.next(false);
     this.userData = data;
-    this.http.post<CompareData>('https://API_ID.execute-api.REGION.amazonaws.com/dev/', data, {
-      headers: new HttpHeaders({ 'Authorization': 'XX' })
-    })
-      .subscribe(
-        (result) => {
-          this.dataLoadFailed.next(false);
-          this.dataIsLoading.next(false);
-          this.dataEdited.next(true);
-        },
-        (error) => {
-          this.dataIsLoading.next(false);
-          this.dataLoadFailed.next(true);
-          this.dataEdited.next(false);
-        }
-      );
+
+    this.authService.getAuthenticatedUser().getSession((err, session: CognitoUserSession) => {
+      if (err) {
+        console.log('Get session for user failed! Error:', err);
+        return;
+      }
+
+      this.http.post<CompareData>(environment.apiBaseUrl, data, {
+        headers: new HttpHeaders({ 'Authorization': session.getIdToken().getJwtToken() })
+      })
+        .subscribe(
+          (result) => {
+            this.dataLoadFailed.next(false);
+            this.dataIsLoading.next(false);
+            this.dataEdited.next(true);
+            console.log('Store data for user successful!');
+          },
+          (error) => {
+            this.dataIsLoading.next(false);
+            this.dataLoadFailed.next(true);
+            this.dataEdited.next(false);
+            console.log('Store data for user failed! Error:', error);
+          }
+        );
+    });
   }
 
   onRetrieveData(all = true) {
