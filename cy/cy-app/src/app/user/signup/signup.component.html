@@ -16,12 +16,13 @@
       </div>
       <div class="form-group">
         <label for="password" class="control-label">Password</label>
-        <input type="password" id="password" name="password" ngModel class="form-control text-center" required>
+        <input type="password" id="password" name="password" ngModel class="form-control text-center" required
+          autocomplete="false">
       </div>
       <div class="form-group">
         <label for="confirmPassword" class="control-label">Confirm Password</label>
         <input type="password" id="confirmPassword" name="confirmPassword" ngModel class="form-control text-center"
-          required>
+          required autocomplete="false">
       </div>
       <div *ngIf="usrForm.value.password !== usrForm.value.confirmPassword">Passwords do not match!</div>
       <button class="btn btn-primary" type="submit"
@@ -33,7 +34,7 @@
 </div>
 <div class="row" *ngIf="!confirmUser">
   <div class="col-12 col-sm-10 col-md-8 offset-sm-1 offset-md-2 text-center">
-    <button class="btn btn-default" (click)="onDoConfirm()">Confirm User</button>
+    <button class="btn btn-secondary" (click)="onDoConfirm()">Confirm User</button>
   </div>
 </div>
 <div class="row" *ngIf="confirmUser">

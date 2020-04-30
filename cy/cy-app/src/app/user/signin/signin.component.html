@@ -12,7 +12,8 @@
       </div>
       <div class="form-group">
         <label for="password" class="control-label">Password</label>
-        <input type="password" id="password" name="password" ngModel class="form-control text-center" required>
+        <input type="password" id="password" name="password" ngModel class="form-control text-center" required
+          autocomplete="false">
       </div>
       <button class="btn btn-primary" type="submit" [disabled]="usrForm.invalid">Submit</button>
     </form>
