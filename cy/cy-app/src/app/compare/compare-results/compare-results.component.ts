@@ -52,13 +52,14 @@ export class CompareResultsComponent implements OnInit {
     }
   }
 
-  onStartSetData () {
+  onStartSetData() {
     this.compareService.dataEdited.next(false);
   }
 
   onGetResults() {
     this.compareService.onRetrieveData();
   }
+
   onClearData() {
     this.compareService.onDeleteData();
   }

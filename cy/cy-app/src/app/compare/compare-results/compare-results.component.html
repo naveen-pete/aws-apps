@@ -1,26 +1,31 @@
 <div class="row">
-  <div class="col-xs-12 col-sm-10 col-md-6 cold-sm-offset-1 col-md-offset-3 text-center">
+  <div class="col-12 col-sm-10 col-md-8 offset-sm-1 offset-md-2 text-center">
     <h2>Your Results</h2>
-    <button class="btn btn-success" (click)="onStartSetData()">Set Data</button>
-    <button class="btn btn-danger" (click)="onClearData()">Clear Data on Server</button>
-    <button class="btn btn-primary" (click)="onGetResults()">Get Results</button>
+    <button class="btn btn-success mx-1" (click)="onStartSetData()">Set Data</button>
+    <button class="btn btn-danger mx-1" (click)="onClearData()">Clear Data on Server</button>
+    <button class="btn btn-primary mx-1" (click)="onGetResults()">Get Results</button>
     <hr>
   </div>
 </div>
 <div class="row">
-  <div class="col-xs-12 col-sm-10 col-md-6 cold-sm-offset-1 col-md-offset-3 text-center">
+  <div class="col-12 col-sm-10 col-md-8 offset-sm-1 offset-md-2 text-center">
     <h3>Select Filter</h3>
-    <div class="list-group">
-      <a style="cursor: pointer;" class="list-group-item" (click)="onFilter('age')" [ngClass]="{active: filter == 'age'}">Your Age: {{ user.age }}</a>
-      <a style="cursor: pointer;" class="list-group-item" (click)="onFilter('height')" [ngClass]="{active: filter == 'height'}">Your Height: {{ user.height }}</a>
-      <a style="cursor: pointer;" class="list-group-item" (click)="onFilter('income')" [ngClass]="{active: filter == 'income'}">Your Income: {{ user.income }}</a>
+    <div class="list-group mb-3">
+      <a style="cursor: pointer;" class="list-group-item" (click)="onFilter('age')"
+        [ngClass]="{active: filter == 'age'}">Your Age: {{ user.age }}</a>
+      <a style="cursor: pointer;" class="list-group-item" (click)="onFilter('height')"
+        [ngClass]="{active: filter == 'height'}">Your Height: {{ user.height }}</a>
+      <a style="cursor: pointer;" class="list-group-item" (click)="onFilter('income')"
+        [ngClass]="{active: filter == 'income'}">Your Income: {{ user.income }}</a>
     </div>
     <div>
-      <button class="btn" [ngClass]="{'btn-default': !lowerIsBetter, 'btn-primary': lowerIsBetter}" (click)="onSelectLower(true)">Lower is better</button>
-      <button class="btn" [ngClass]="{'btn-default': lowerIsBetter, 'btn-primary': !lowerIsBetter}" (click)="onSelectLower(false)">Higher is better</button>
+      <button class="btn btn-sm mx-1" [ngClass]="{'btn-secondary': !lowerIsBetter, 'btn-dark': lowerIsBetter}"
+        (click)="onSelectLower(true)">Lower is better</button>
+      <button class="btn btn-sm mx-1" [ngClass]="{'btn-secondary': lowerIsBetter, 'btn-dark': !lowerIsBetter}"
+        (click)="onSelectLower(false)">Higher is better</button>
     </div>
     <hr>
-    <div class="loader" *ngIf="!compareData && !didFail">Loading...</div>
+    <app-spinner *ngIf="!compareData && !didFail"></app-spinner>
     <div class="row">
       <div class="col-xs-12 col-sm-10 col-md-6 cold-sm-offset-1 col-md-offset-3 text-center">
         <div class="alert alert-danger" *ngIf="didFail">
@@ -35,4 +40,3 @@
     </ul>
   </div>
 </div>
-

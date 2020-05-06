@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { BehaviorSubject, Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
 import { CognitoUserSession } from 'amazon-cognito-identity-js';
 
 import { CompareData } from './compare-data.model';
@@ -29,6 +28,9 @@ export class CompareService {
     this.authService.getAuthenticatedUser().getSession((err, session: CognitoUserSession) => {
       if (err) {
         console.log('Get session for user failed! Error:', err);
+        this.dataIsLoading.next(false);
+        this.dataLoadFailed.next(true);
+        this.dataEdited.next(false);
         return;
       }
 
@@ -55,45 +57,80 @@ export class CompareService {
   onRetrieveData(all = true) {
     this.dataLoaded.next(null);
     this.dataLoadFailed.next(false);
-    let queryParam = '';
-    let urlParam = 'all';
-    if (!all) {
-      urlParam = 'single';
-    }
-    this.http.get<CompareData[]>('https://API_ID.execute-api.REGION.amazonaws.com/dev/' + urlParam + queryParam, {
-      headers: new HttpHeaders({ 'Authorization': 'XXX' })
-    })
-      .subscribe(
-        (data) => {
-          if (all) {
-            this.dataLoaded.next(data);
-          } else {
-            console.log(data);
-            if (!data) {
-              this.dataLoadFailed.next(true);
-              return;
+    this.dataIsLoading.next(true);
+
+    this.authService.getAuthenticatedUser().getSession((err, session: CognitoUserSession) => {
+      if (err) {
+        console.log('Get session for user failed! Error:', err);
+
+        this.dataLoadFailed.next(true);
+        this.dataIsLoading.next(false);
+        return;
+      }
+
+      const queryParam = `accessToken=${session.getAccessToken().getJwtToken()}`;
+      let urlParam = 'all';
+      if (!all) {
+        urlParam = 'single';
+      }
+      this.http.get<CompareData[]>(`${environment.apiBaseUrl}/${urlParam}?${queryParam}`, {
+        headers: new HttpHeaders({ 'Authorization': session.getIdToken().getJwtToken() })
+      })
+        .subscribe(
+          (data) => {
+            if (all) {
+              console.log('Returning all data.');
+              this.dataLoaded.next(data);
+              this.dataIsLoading.next(false);
+            } else {
+              console.log('Returning single data.');
+              if (!data) {
+                this.dataLoadFailed.next(true);
+                this.dataIsLoading.next(false);
+                return;
+              }
+              this.userData = data[0];
+              this.dataEdited.next(true);
+              this.dataIsLoading.next(false);
             }
-            this.userData = data[0];
-            this.dataEdited.next(true);
+          },
+          (error) => {
+            console.log('Get data failed. Error:', error);
+            this.dataLoadFailed.next(true);
+            this.dataIsLoading.next(false);
+            this.dataLoaded.next(null);
           }
-        },
-        (error) => {
-          this.dataLoadFailed.next(true);
-          this.dataLoaded.next(null);
-        }
-      );
+        );
+    });
   }
 
   onDeleteData() {
     this.dataLoadFailed.next(false);
-    this.http.delete('https://API_ID.execute-api.REGION.amazonaws.com/dev/', {
-      headers: new HttpHeaders({ 'Authorization': 'XXX' })
-    })
-      .subscribe(
-        (data) => {
-          console.log(data);
-        },
-        (error) => this.dataLoadFailed.next(true)
-      );
+    this.dataIsLoading.next(true);
+
+    this.authService.getAuthenticatedUser().getSession((err, session: CognitoUserSession) => {
+      if (err) {
+        console.log('Get session for user failed! Error:', err);
+        this.dataIsLoading.next(false);
+        this.dataLoadFailed.next(true);
+        return;
+      }
+
+      this.http.delete(environment.apiBaseUrl, {
+        headers: new HttpHeaders({ 'Authorization': session.getIdToken().getJwtToken() })
+      })
+        .subscribe(
+          (data) => {
+            console.log('Delete user data successful!');
+            this.dataIsLoading.next(false);
+            this.dataEdited.next(false);
+          },
+          (error) => {
+            console.log('Delete user data failed! Error:', error);
+            this.dataLoadFailed.next(true);
+            this.dataIsLoading.next(false);
+          }
+        );
+    });
   }
 }
